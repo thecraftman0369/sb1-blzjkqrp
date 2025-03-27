@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-brand-white;
+  }
+  h1, h2, h3, h4, h5, h6, p {
+    @apply text-center;
+  }
+  ul, ol {
+    @apply mx-auto;
+  }
+}
+
+.text-left-force {
+  text-align: left !important;
+}
+
+/* Image optimization */
+.gallery-image {
+  @apply w-full h-full object-cover transition-transform duration-300;
+}
+
+/* Card consistency */
+.content-card {
+  @apply bg-brand-white rounded-lg p-6 sm:p-8 shadow-sm border border-brand-gray-light;
+}
+
+/* Consistent spacing */
+.section-spacing {
+  @apply mb-8 sm:mb-12;
+}
+
+/* Container consistency */
+.main-container {
+  @apply max-w-6xl mx-auto px-4 py-12;
+}
