@@ -1,12 +1,12 @@
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
-import type { Database } from '@/lib/types';
 
 /**
  * Browser-safe client (anon key, RLS-restricted to public reads).
- * Use in client components.
+ * Use in client components. Query results are typed manually against
+ * lib/types.ts rather than a generated Database schema.
  */
 export function createClient() {
-  return createSupabaseClient<Database>(
+  return createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
