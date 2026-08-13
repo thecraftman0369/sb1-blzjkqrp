@@ -59,10 +59,6 @@ export async function proxy(request: NextRequest) {
     return errorResponse(401, 'Unauthorized', { message: 'Invalid API key' });
   }
 
-  if (apiKey.status === 'blocked' || apiKey.status === 'revoked') {
-    return errorResponse(403, 'Forbidden', { message: `API key is ${apiKey.status}` });
-  }
-
   // Strip the leading /api so the lookup matches endpoints.path, which is
   // seeded as the logical API path ("/v1/users"), not the Next.js route
   // path ("/api/v1/users").
@@ -71,6 +67,15 @@ export async function proxy(request: NextRequest) {
 
   if (!endpointId) {
     return errorResponse(404, 'Not Found', { message: `No endpoint registered for ${request.method} ${endpointPath}` });
+  }
+
+  if (apiKey.status === 'blocked' || apiKey.status === 'revoked') {
+    await supabase.from('usage_log').insert({
+      api_key_id: apiKey.id,
+      endpoint_id: endpointId,
+      status: 'blocked',
+    });
+    return errorResponse(403, 'Forbidden', { message: `API key is ${apiKey.status}` });
   }
 
   const result = await checkRateLimit(apiKey.id, endpointId);

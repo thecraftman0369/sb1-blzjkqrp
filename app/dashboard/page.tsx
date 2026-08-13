@@ -27,10 +27,11 @@ export default async function OverviewPage() {
         <p className="mt-1 text-sm text-muted">Live enforcement data from usage_log and violations.</p>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-6">
         <StatTile label="Total requests" value={stats.totalRequests.toLocaleString()} />
         <StatTile label="Allowed" value={stats.allowedRequests.toLocaleString()} tone="success" />
         <StatTile label="Rate limited" value={stats.rateLimitedRequests.toLocaleString()} tone="warning" />
+        <StatTile label="Blocked" value={stats.blockedRequests.toLocaleString()} tone="danger" />
         <StatTile label="Active API keys" value={stats.activeKeys.toLocaleString()} />
         <StatTile label="Avg rate (last hr)" value={`${stats.avgRequestsPerMinute}/min`} />
       </div>

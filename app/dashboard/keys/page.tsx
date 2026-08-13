@@ -1,11 +1,17 @@
 import { Card, CardHeader } from '@/components/ui/Card';
 import { ApiKeysTable } from '@/components/dashboard/ApiKeysTable';
+import { createServiceClient } from '@/lib/supabase/server';
 import { getApiKeysWithUsage } from '@/lib/dashboardQueries';
 
 export const dynamic = 'force-dynamic';
 
 export default async function ApiKeysPage() {
-  const keys = await getApiKeysWithUsage();
+  const supabase = createServiceClient();
+  const [keys, { data: plansData }] = await Promise.all([
+    getApiKeysWithUsage(),
+    supabase.from('plans').select('id, name').order('name', { ascending: true }),
+  ]);
+  const plans = (plansData ?? []) as Array<{ id: string; name: string }>;
 
   return (
     <div className="flex flex-col gap-6">
@@ -16,7 +22,7 @@ export default async function ApiKeysPage() {
 
       <Card>
         <CardHeader title="All keys" subtitle="Monthly usage is measured against requests_log since the start of the calendar month" />
-        <ApiKeysTable keys={keys} />
+        <ApiKeysTable keys={keys} plans={plans} />
       </Card>
     </div>
   );

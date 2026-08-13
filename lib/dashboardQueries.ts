@@ -11,6 +11,7 @@ export interface OverviewStats {
   totalRequests: number;
   allowedRequests: number;
   rateLimitedRequests: number;
+  blockedRequests: number;
   activeKeys: number;
   avgRequestsPerMinute: number;
 }
@@ -19,10 +20,11 @@ export async function getOverviewStats(): Promise<OverviewStats> {
   const supabase = createServiceClient();
   const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
 
-  const [total, allowed, rateLimited, activeKeys, lastHour] = await Promise.all([
+  const [total, allowed, rateLimited, blocked, activeKeys, lastHour] = await Promise.all([
     supabase.from('usage_log').select('id', { count: 'exact', head: true }),
     supabase.from('usage_log').select('id', { count: 'exact', head: true }).eq('status', 'allowed'),
     supabase.from('usage_log').select('id', { count: 'exact', head: true }).eq('status', 'rate_limited'),
+    supabase.from('usage_log').select('id', { count: 'exact', head: true }).eq('status', 'blocked'),
     supabase.from('api_keys').select('id', { count: 'exact', head: true }).eq('status', 'active'),
     supabase.from('usage_log').select('id', { count: 'exact', head: true }).gte('timestamp', oneHourAgo),
   ]);
@@ -31,6 +33,7 @@ export async function getOverviewStats(): Promise<OverviewStats> {
     totalRequests: total.count ?? 0,
     allowedRequests: allowed.count ?? 0,
     rateLimitedRequests: rateLimited.count ?? 0,
+    blockedRequests: blocked.count ?? 0,
     activeKeys: activeKeys.count ?? 0,
     avgRequestsPerMinute: Math.round(((lastHour.count ?? 0) / 60) * 10) / 10,
   };

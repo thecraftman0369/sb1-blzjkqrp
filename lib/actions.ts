@@ -1,9 +1,26 @@
 'use server';
 
+import { randomBytes } from 'node:crypto';
 import { revalidatePath } from 'next/cache';
 import { createServiceClient } from '@/lib/supabase/server';
 import { resetBuckets } from '@/lib/rateLimiter';
 import type { ApiKeyStatus } from '@/lib/types';
+
+export async function createApiKey(formData: FormData) {
+  const supabase = createServiceClient();
+  const keyValue = `sk_live_${randomBytes(16).toString('hex')}`;
+
+  await supabase.from('api_keys').insert({
+    key_value: keyValue,
+    owner_name: String(formData.get('owner_name')),
+    plan_id: String(formData.get('plan_id')),
+    status: 'active',
+  });
+
+  revalidatePath('/dashboard/keys');
+  revalidatePath('/dashboard/simulator');
+  revalidatePath('/dashboard');
+}
 
 export async function setApiKeyStatus(id: string, status: ApiKeyStatus) {
   const supabase = createServiceClient();
